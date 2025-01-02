@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Django REST Client</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEJv3+9ou8v5xF6T5vC9RrbhcmmX17GzlpFcA0L37ETb6pR17mPpv5fPb9PB9" crossorigin="anonymous">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            padding: 20px;
+        }
+		
+		.center {
+  margin: auto;
+  width: 60%;
+}
+
+        h2 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .card {
+            background-color: #fff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.12);
+            border: 1px solid #ddd;
+            padding: 15px;
+        }
+
+        .btn-primary, .btn-success {
+            background-color: #3498db;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            font-size: 16px;
+        }
+
+        .btn-primary:hover, .btn-success:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-success {
+            background-color: #2ecc71;
+        }
+
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+
+        .media-item {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .media-item h4 {
+            color: #34495e;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .media-item p {
+            color: #7f8c8d;
+            margin-bottom: 5px;
+        }
+
+        .media-item strong {
+            color: #2c3e50;
+        }
+
+        #mediaData {
+            margin-top: 30px;
+        }
+
+        .container {
+            max-width: 800px;
+        }
+
+        /* Spacing and Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 2rem;
+            }
+
+            .form-control {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container mt-5 center">
+        <h2 class="mb-4">Django REST Client</h2>
+
+        <!-- Form to POST data -->
+        <div class="card">
+            <h4 class="card-title text-center">Submit Media Information</h4>
+            <form id="mediaForm">
+                <div class="mb-3">
+                    <label for="media_name" class="form-label">Media Name</label>
+                    <input type="text" class="form-control" id="media_name" required>
+                </div>
+                <div class="mb-3">
+                    <label for="media_desc" class="form-label">Media Description</label>
+                    <input type="text" class="form-control" id="media_desc" required>
+                </div>
+                <div class="mb-3">
+                    <label for="media_type" class="form-label">Media Type</label>
+                    <input type="number" class="form-control" id="media_type" required>
+                </div>
+                <div class="mb-3">
+                    <label for="is_completed" class="form-label">Is Completed</label>
+                    <input type="checkbox" id="is_completed" class="form-check-input">
+                </div>
+                <div class="mb-3">
+                    <label for="date_of_completion" class="form-label">Date of Completion</label>
+                    <input type="date" class="form-control" id="date_of_completion" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Submit</button>
+            </form>
+        </div>
+
+        <hr>
+
+        <!-- Button to Get data from Server -->
+        <button id="getDataBtn" class="btn btn-success w-100">Get Media Data</button>
+
+        <!-- Display Media Data -->
+        <div id="mediaData"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // POST Method to submit data
+        $('#mediaForm').on('submit', function (event) {
+            event.preventDefault(); // Prevent form submission
+
+            const mediaData = [{
+                media_name: $('#media_name').val(),
+                media_desc: $('#media_desc').val(),
+                media_type: parseInt($('#media_type').val()),
+                is_completed: $('#is_completed').prop('checked'),
+                date_of_completion: $('#date_of_completion').val()
+            }];
+
+            fetch('https://happy-new-year-446516.uc.r.appspot.com/check/add/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(mediaData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Data submitted successfully!');
+                $('#mediaForm')[0].reset(); // Reset form after successful submission
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting data');
+            });
+        });
+
+        // GET Method to fetch data
+        $('#getDataBtn').on('click', function () {
+            fetch('https://happy-new-year-446516.uc.r.appspot.com/check/get/')
+                .then(response => response.json())
+                .then(data => {
+                    const mediaData = data.map(item => {
+                        return `
+                            <div class="media-item">
+                                <h4>${item.media_name}</h4>
+                                <p><strong>Description:</strong> ${item.media_desc}</p>
+                                <p><strong>Type:</strong> ${item.media_type}</p>
+                                <p><strong>Completed:</strong> ${item.is_completed ? 'Yes' : 'No'}</p>
+                                <p><strong>Date of Completion:</strong> ${item.date_of_completion}</p>
+                            </div>
+                        `;
+                    }).join('');
+                    $('#mediaData').html(mediaData);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error fetching data');
+                });
+        });
+    </script>
+
+</body>
+
+</html>
